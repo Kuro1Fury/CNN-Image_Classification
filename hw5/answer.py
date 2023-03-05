@@ -30,7 +30,7 @@ class SimpleCNN(nn.Module):
     def __init__(self, arr=[]):
         super(SimpleCNN, self).__init__()
         self.conv_layer = nn.Conv2d(3, 8, 3)
-        self.pool = nn.MaxPool2d(2)
+        self.pool = nn.MaxPool2d(2, 2)
         self.fc1 = nn.Linear(1568, 5)
 
     def forward(self, x):
@@ -39,7 +39,14 @@ class SimpleCNN(nn.Module):
 
         TODO: fill this forward function for data flow
         """
-        pass
+        x = self.conv_layer(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        x = x.view(x.shape[0], -1)
+        x = self.fc1(x)
+        return x
+        
+        
 
 
 # %%
@@ -51,7 +58,7 @@ Question 3
 TODO: Add color normalization to the transformer. For simplicity, let us use 0.5 for mean
       and 0.5 for standard deviation for each color channel.
 """
-norm_transformer = transforms.Compose([])
+norm_transformer = transforms.Compose([transforms.ToTensor(), transforms.Normalize(0.5, 0.5)])
 
 
 # %%
@@ -63,15 +70,34 @@ class DeepCNN(nn.Module):
 
         TODO: setup the structure of the network
         """
-        pass
-
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=8, 
+                               kernel_size=3, stride=1, 
+                               padding=0, dilation=1, groups=1)
+        self.conv2 = nn.Conv2d(in_channels=8, out_channels=16, 
+                               kernel_size=3, stride=1, 
+                               padding=0, dilation=1, groups=1)
+        self.conv3 = nn.Conv2d(in_channels=16, out_channels=32, 
+                               kernel_size=3, stride=1, 
+                               padding=0, dilation=1, groups=1)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.fc = nn.Linear(32 * 12 * 12, 5)
+    
     def forward(self, x):
         """
         Question 4
 
         TODO: setup the flow of data (tensor)
         """
-        pass
+        x = self.conv1(x)
+        x = F.relu(x)
+        x = self.conv2(x)
+        x = F.relu(x)
+        x = self.conv3(x)
+        x = F.relu(x)
+        x = self.pool(x)
+        x = x.view(x.shape[0], -1)
+        x = self.fc(x)
+        return x
 
 
 # %%
@@ -89,6 +115,10 @@ TODO:
 """
 
 """Add random data augmentation to the transformer"""
-aug_transformer = transforms.Compose([])
+aug_transformer = transforms.Compose([transforms.RandomHorizontalFlip(p=0.5), 
+                                      transforms.RandomAffine(degrees=5, shear=10), 
+                                      transforms.RandomCrop(size = 30), 
+                                      transforms.ToTensor(), 
+                                      transforms.Normalize(0.5, 0.5)])
 
 
